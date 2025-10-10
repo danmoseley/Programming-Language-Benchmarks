@@ -1,6 +1,18 @@
 using System;
 using System.Numerics;
 
+readonly struct BigPair
+{
+    public readonly BigInteger P;
+    public readonly BigInteger Q;
+    
+    public BigPair(BigInteger p, BigInteger q)
+    {
+        P = p;
+        Q = q;
+    }
+}
+
 class DigitsOfE
 {
     private static readonly double LogOfTau = Math.Log(Math.Tau);
@@ -15,10 +27,10 @@ class DigitsOfE
         }
 
         var k = BinarySearch(n);
-        var (p, q) = SumTerms(0, k - 1);
-        p += q;
+        var pair = SumTerms(0, k - 1);
+        var p = BigInteger.Add(pair.P, pair.Q);
         var a = BigInteger.Pow(new BigInteger(10), n - 1);
-        var answer = p * a / q;
+        var answer = BigInteger.Divide(BigInteger.Multiply(p, a), pair.Q);
         var answerStr = answer.ToString();
         Span<char> sb = stackalloc char[10];
         for (var i = 0; i < n; i += 10)
@@ -44,16 +56,18 @@ class DigitsOfE
         }
     }
 
-    static (BigInteger, BigInteger) SumTerms(int a, int b)
+    static BigPair SumTerms(int a, int b)
     {
         if (b == a + 1)
         {
-            return (BigInteger.One, new BigInteger(b));
+            return new BigPair(BigInteger.One, new BigInteger(b));
         }
         var mid = (a + b) / 2;
-        var (pLeft, qLeft) = SumTerms(a, mid);
-        var (pRight, qRight) = SumTerms(mid, b);
-        return (pLeft * qRight + pRight, qLeft * qRight);
+        var pairLeft = SumTerms(a, mid);
+        var pairRight = SumTerms(mid, b);
+        return new BigPair(
+            BigInteger.Add(BigInteger.Multiply(pairLeft.P, pairRight.Q), pairRight.P),
+            BigInteger.Multiply(pairLeft.Q, pairRight.Q));
     }
 
     static int BinarySearch(int n)
@@ -82,7 +96,7 @@ class DigitsOfE
 
     static bool TestK(int n, int k)
     {
-        if (k <= 0)
+        if (k < 0)
         {
             return false;
         }

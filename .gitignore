@@ -40,3 +40,12 @@ Temporary Items
 *.code-workspace
 
 # End of https://www.toptal.com/developers/gitignore/api/vscode,osx
+
+# Build artifacts
+*.class
+*.exe
+*.dll
+*.so
+*.dylib
+*.o
+*.pdb
